@@ -1,34 +1,25 @@
-﻿Build started 10/1/2015 11:32:18 AM.
-     1>Project "\\banner.main.ad.rit.edu\students\ms8565\IGMProfile\Desktop\DSA II\CubeWorking2\CubeWorking2\RenderingReview\RenderingReview.vcxproj" on node 2 (Build target(s)).
+﻿Build started 11/9/2015 5:28:43 PM.
+     1>Project "E:\DSAGame\CubeWorking2\CubeWorking2\RenderingReview\RenderingReview.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Main.cpp
-         Main.cpp
-     1>\\banner.main.ad.rit.edu\students\ms8565\igmprofile\desktop\dsa ii\cubeworking2\cubeworking2\renderingreview\main.cpp(121): warning C4018: '<' : signed/unsigned mismatch
-     1>\\banner.main.ad.rit.edu\students\ms8565\igmprofile\desktop\dsa ii\cubeworking2\cubeworking2\renderingreview\main.cpp(191): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
-     1>\\banner.main.ad.rit.edu\students\ms8565\igmprofile\desktop\dsa ii\cubeworking2\cubeworking2\renderingreview\main.cpp(192): warning C4244: 'initializing' : conversion from 'double' to 'GLfloat', possible loss of data
-     1>\\banner.main.ad.rit.edu\students\ms8565\igmprofile\desktop\dsa ii\cubeworking2\cubeworking2\renderingreview\main.cpp(353): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>\\banner.main.ad.rit.edu\students\ms8565\igmprofile\desktop\dsa ii\cubeworking2\cubeworking2\renderingreview\main.cpp(354): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>\\banner.main.ad.rit.edu\students\ms8565\igmprofile\desktop\dsa ii\cubeworking2\cubeworking2\renderingreview\main.cpp(374): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>\\banner.main.ad.rit.edu\students\ms8565\igmprofile\desktop\dsa ii\cubeworking2\cubeworking2\renderingreview\main.cpp(375): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>\\banner.main.ad.rit.edu\students\ms8565\igmprofile\desktop\dsa ii\cubeworking2\cubeworking2\renderingreview\main.cpp(377): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>\\banner.main.ad.rit.edu\students\ms8565\igmprofile\desktop\dsa ii\cubeworking2\cubeworking2\renderingreview\main.cpp(378): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>\\banner.main.ad.rit.edu\students\ms8565\igmprofile\desktop\dsa ii\cubeworking2\cubeworking2\renderingreview\main.cpp(402): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Camera.cpp
+         Camera.cpp
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"\\banner.main.ad.rit.edu\students\ms8565\IGMProfile\Desktop\DSA II\CubeWorking2\CubeWorking2\Debug\RenderingReview.exe" /INCREMENTAL /NOLOGO glew32.lib glfw3.lib opengl32.lib SOIL.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"\\banner.main.ad.rit.edu\students\ms8565\IGMProfile\Desktop\DSA II\CubeWorking2\CubeWorking2\Debug\RenderingReview.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"\\banner.main.ad.rit.edu\students\ms8565\IGMProfile\Desktop\DSA II\CubeWorking2\CubeWorking2\Debug\RenderingReview.lib" /MACHINE:X86 Debug\Main.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"E:\DSAGame\CubeWorking2\CubeWorking2\Debug\RenderingReview.exe" /INCREMENTAL /NOLOGO glew32.lib glfw3.lib opengl32.lib SOIL.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:\DSAGame\CubeWorking2\CubeWorking2\Debug\RenderingReview.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\DSAGame\CubeWorking2\CubeWorking2\Debug\RenderingReview.lib" /MACHINE:X86 Debug\Camera.obj
+         Debug\Main.obj
          Debug\ShaderHelpers.obj
          SOIL.lib(SOIL.obj) : MSIL .netmodule or module compiled with /GL found; restarting link with /LTCG; add /LTCG to the link command line to improve linker performance
      1>LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/LTCG' specification
-     1>Main.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/OPT:LBR' specification
+     1>Camera.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/OPT:LBR' specification
      1>LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
          Generating code
          Finished generating code
-     1>SOIL.lib(SOIL.obj) : warning LNK4099: PDB 'vc110.pdb' was not found with 'SOIL.lib(SOIL.obj)' or at '\\banner.main.ad.rit.edu\students\ms8565\IGMProfile\Desktop\DSA II\CubeWorking2\CubeWorking2\Debug\vc110.pdb'; linking object as if no debug info
-     1>SOIL.lib(stb_image_aug.obj) : warning LNK4099: PDB 'vc110.pdb' was not found with 'SOIL.lib(stb_image_aug.obj)' or at '\\banner.main.ad.rit.edu\students\ms8565\IGMProfile\Desktop\DSA II\CubeWorking2\CubeWorking2\Debug\vc110.pdb'; linking object as if no debug info
-     1>SOIL.lib(image_helper.obj) : warning LNK4099: PDB 'vc110.pdb' was not found with 'SOIL.lib(image_helper.obj)' or at '\\banner.main.ad.rit.edu\students\ms8565\IGMProfile\Desktop\DSA II\CubeWorking2\CubeWorking2\Debug\vc110.pdb'; linking object as if no debug info
-     1>SOIL.lib(image_DXT.obj) : warning LNK4099: PDB 'vc110.pdb' was not found with 'SOIL.lib(image_DXT.obj)' or at '\\banner.main.ad.rit.edu\students\ms8565\IGMProfile\Desktop\DSA II\CubeWorking2\CubeWorking2\Debug\vc110.pdb'; linking object as if no debug info
-         RenderingReview.vcxproj -> \\banner.main.ad.rit.edu\students\ms8565\IGMProfile\Desktop\DSA II\CubeWorking2\CubeWorking2\Debug\RenderingReview.exe
-     1>Done Building Project "\\banner.main.ad.rit.edu\students\ms8565\IGMProfile\Desktop\DSA II\CubeWorking2\CubeWorking2\RenderingReview\RenderingReview.vcxproj" (Build target(s)).
+     1>SOIL.lib(SOIL.obj) : warning LNK4099: PDB 'vc110.pdb' was not found with 'SOIL.lib(SOIL.obj)' or at 'E:\DSAGame\CubeWorking2\CubeWorking2\Debug\vc110.pdb'; linking object as if no debug info
+     1>SOIL.lib(stb_image_aug.obj) : warning LNK4099: PDB 'vc110.pdb' was not found with 'SOIL.lib(stb_image_aug.obj)' or at 'E:\DSAGame\CubeWorking2\CubeWorking2\Debug\vc110.pdb'; linking object as if no debug info
+     1>SOIL.lib(image_helper.obj) : warning LNK4099: PDB 'vc110.pdb' was not found with 'SOIL.lib(image_helper.obj)' or at 'E:\DSAGame\CubeWorking2\CubeWorking2\Debug\vc110.pdb'; linking object as if no debug info
+     1>SOIL.lib(image_DXT.obj) : warning LNK4099: PDB 'vc110.pdb' was not found with 'SOIL.lib(image_DXT.obj)' or at 'E:\DSAGame\CubeWorking2\CubeWorking2\Debug\vc110.pdb'; linking object as if no debug info
+         RenderingReview.vcxproj -> E:\DSAGame\CubeWorking2\CubeWorking2\Debug\RenderingReview.exe
+     1>Done Building Project "E:\DSAGame\CubeWorking2\CubeWorking2\RenderingReview\RenderingReview.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:14.08
+Time Elapsed 00:00:16.73

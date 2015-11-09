@@ -2,6 +2,7 @@
 #include<glfw3.h>
 #include "ShaderHelpers.h"
 #include<SOIL.h>
+#include "Camera.h"
 using namespace std;
 #include<vector>
 #include<string>
@@ -20,6 +21,8 @@ vec3 rotationAxis;
 mat4 worldMatrix;
 
 const GLsizei floatsPerVert = 36 * 5;
+
+Camera camera;
 
 vec3 cameraPos;
 vec3 cameraUp;
@@ -102,11 +105,12 @@ void init() {
 	glDepthFunc(GL_LESS);
 
 
-	cameraPos = vec3(0.0f, 0.0f, 1.5f);
-	cameraUp = vec3(0.0f, 1.0f, 0.0f);
-	cameraFront = vec3(0.0f, 0.0f, -1.0f);
 
+	//cameraPos = vec3(0.0f, 0.0f, 1.5f);
+	//cameraUp = vec3(0.0f, 1.0f, 0.0f);
+	//cameraFront = vec3(0.0f, 0.0f, -1.0f);
 
+	camera = Camera();
 
 	vec3 currentPosition = vec3(0, 0, 0);
 	vec3 currentScale = vec3(1, 1, 1);
@@ -178,6 +182,7 @@ void init() {
 }
 
 void update() {
+	/*
 	vec3 cameraTarget = vec3(0.0f, 0.0f, 0.0f);
 	vec3 cameraDirection = normalize(cameraPos - cameraTarget);
 	
@@ -185,17 +190,23 @@ void update() {
 	vec3 cameraRight = normalize(cross(up, cameraDirection));
 
 	cameraUp = vec3(0.0f, 1.0f, 0.0f);
+	*/
 
+	camera.getForward();
+	camera.getRight();
+	camera.getUp();
 
 	GLfloat radius = 1.0f;
 	GLfloat camX = sin(glfwGetTime())* radius;
 	GLfloat camZ = cos(glfwGetTime())* radius;
 
-	mat4 viewMatrix = lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-	mat4 perspectiveMatrix = glm::perspective(3.14f/2.0f, 800.0f / 800.0f, .001f, 1000.0f);
+	mat4 viewMatrix = lookAt(camera.pos, camera.getLookAt(), vec3(0.0f, 1.0f, 0.0f));
+	//mat4 viewMatrix = lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+	//mat4 perspectiveMatrix = glm::perspective(3.14f/2.0f, 800.0f / 800.0f, .001f, 1000.0f);
+	mat4 perspectiveMatrix = glm::perspective(100.0f, 1.0f, 0.01f, 1000.0f);
 	perspectiveMatrix *= viewMatrix;
 	setShaderMatrix(programIndex, "cameraMatrix", perspectiveMatrix);
-
+	cout << cameraPos.x << "  " << cameraPos.y <<  endl;
 	
 }
 
@@ -380,7 +391,7 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
 	float sensitivity = .05f;
 	offsetX *= sensitivity;
 	offsetY *= sensitivity;
-
+	camera.turn(offsetX, offsetY);
 	yaw += offsetX;
 	pitch += offsetY;
 	vec3 front;
@@ -405,15 +416,15 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	float cameraSpeed = .2f * deltaTime;
 
 	if (key == GLFW_KEY_W){
-		cameraPos += cameraSpeed * normalize(cameraFront);
+		camera.pos += cameraSpeed * normalize(cameraFront);
 	}
 	if (key == GLFW_KEY_A){
-		cameraPos -= normalize(cross(cameraFront, cameraUp))*cameraSpeed;
+		camera.pos -= camera.getRight()*cameraSpeed;
 	}
 	if (key == GLFW_KEY_S){
-		cameraPos -= cameraSpeed * normalize(cameraFront);
+		camera.pos -= cameraSpeed * normalize(cameraFront);
 	}
 	if (key == GLFW_KEY_D){
-		cameraPos += normalize(cross(cameraFront, cameraUp))*cameraSpeed;
+		camera.pos += camera.getRight()*cameraSpeed;
 	}
 }

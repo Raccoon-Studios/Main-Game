@@ -1,11 +1,9 @@
 #include<glew.h>
 #include<glfw3.h>
 #include "ShaderHelpers.h"
-#include<SOIL.h>
+#include "Object3d.h"
 #include "Camera.h"
 using namespace std;
-#include<vector>
-#include<string>
 #include<sstream>
 
 GLuint bufferIndex;
@@ -14,11 +12,11 @@ GLint programIndex;
 
 const GLsizei numVertices = 5;
 const GLsizei numComponents = numVertices * 5;
-vec3 currentPosition;
-vec3 currentScale;
+GLint worldMatrix;
+GLint currentPosition;
+GLint currentScale;
 float rotationAngle;
 vec3 rotationAxis;
-mat4 worldMatrix;
 
 const GLsizei floatsPerVert = 36 * 5;
 
@@ -46,7 +44,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 
 bool mouseDragging;
-
+Object3d *player;
 
 
 int main(void)
@@ -112,61 +110,22 @@ void init() {
 
 	camera = Camera();
 
-	vec3 currentPosition = vec3(0, 0, 0);
-	vec3 currentScale = vec3(1, 1, 1);
+	currentPosition = glGetUniformLocation(programIndex, "position");
+	currentScale = glGetUniformLocation(programIndex, "scale"); 
+	worldMatrix = glGetUniformLocation(programIndex, "worldMatrix");
 	float rotationAngle = 0;
 	vec3 rotationAxis = vec3(0, 0, 1);
 
 	glGenVertexArrays(1, &arrayIndex);
 	glBindVertexArray(arrayIndex);
 
-	vector<GLfloat> modelVertices = loadOBJ("cube2.obj");
-	GLfloat modelVertices2[288];
-	for (int i = 0; i < modelVertices.size(); i++){
+	player = new Object3d("cube2.obj");
 
-		modelVertices2[i] = modelVertices[i];
-	}
+	player->loadObj();
 
-	glGenBuffers(1, &bufferIndex);
-	glBindBuffer(GL_ARRAY_BUFFER, bufferIndex);
-
-	glBufferData(
-		GL_ARRAY_BUFFER,
-		sizeof(modelVertices2),
-		modelVertices2,
-		GL_STATIC_DRAW);
-
-	glVertexAttribPointer(
-		0,
-		3,
-		GL_FLOAT,
-		GL_FALSE,
-		sizeof(GL_FLOAT) * 8,
-	0);
-	glEnableVertexAttribArray(0);
-	
-	 
-	GLuint textureID = SOIL_load_OGL_texture(
-		"archer.jpg", SOIL_LOAD_AUTO,
-		SOIL_CREATE_NEW_ID, SOIL_FLAG_INVERT_Y);
-	glBindTexture(GL_TEXTURE_2D, textureID);
-	glVertexAttribPointer(
-		2,
-		2,
-		GL_FLOAT,
-		GL_FALSE,
-		sizeof(GL_FLOAT) * 8,
-		(void*)(sizeof(GL_FLOAT) * 3));
-	glEnableVertexAttribArray(2);
-
-	glVertexAttribPointer(
-		3,
-		3,
-		GL_FLOAT,
-		GL_FALSE,
-		sizeof(GL_FLOAT) * 8,
-		(void*)(sizeof(GL_FLOAT) *5));
-	glEnableVertexAttribArray(3);
+	player->loadTex("archer.jpg");
+	player->position = vec3(0, 0, 0);
+	player->scale = vec3(1, 1, 1);
 
 	glClearColor(0.392f, 0.584f, 0.929f, 1.0f);
 
@@ -176,153 +135,43 @@ void init() {
 	}
 
 	setShaderColor(programIndex, "color", 1, 0, 1);
-	worldMatrix = translate(currentPosition) * scale(currentScale) * rotate(rotationAngle, rotationAxis);
-	setShaderMatrix(programIndex, "worldMatrix", worldMatrix);
+	//worldMatrix = translate(currentPosition) * scale(currentScale) * rotate(rotationAngle, rotationAxis);
+	//setShaderMatrix(programIndex, "worldMatrix", worldMatrix);
 
 }
 
 void update() {
-	/*
-	vec3 cameraTarget = vec3(0.0f, 0.0f, 0.0f);
-	vec3 cameraDirection = normalize(cameraPos - cameraTarget);
-	
-	vec3 up = vec3(0.0f, 1.0f, 0.0f);
-	vec3 cameraRight = normalize(cross(up, cameraDirection));
+	//Camera Stuff
+		camera.getForward();
+		camera.getRight();
+		camera.getUp();
 
-	cameraUp = vec3(0.0f, 1.0f, 0.0f);
-	*/
+		GLfloat radius = 1.0f;
+		GLfloat camX = sin(glfwGetTime())* radius;
+		GLfloat camZ = cos(glfwGetTime())* radius;
 
-	camera.getForward();
-	camera.getRight();
-	camera.getUp();
+		mat4 viewMatrix = lookAt(camera.pos, camera.getLookAt(), vec3(0.0f, 1.0f, 0.0f));
 
-	GLfloat radius = 1.0f;
-	GLfloat camX = sin(glfwGetTime())* radius;
-	GLfloat camZ = cos(glfwGetTime())* radius;
+		mat4 perspectiveMatrix = glm::perspective(100.0f, 1.0f, 0.01f, 1000.0f);
+		perspectiveMatrix *= viewMatrix;
+		setShaderMatrix(programIndex, "cameraMatrix", perspectiveMatrix);
+		cout << cameraPos.x << "  " << cameraPos.y <<  endl;
+	//end
 
-	mat4 viewMatrix = lookAt(camera.pos, camera.getLookAt(), vec3(0.0f, 1.0f, 0.0f));
-	//mat4 viewMatrix = lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-	//mat4 perspectiveMatrix = glm::perspective(3.14f/2.0f, 800.0f / 800.0f, .001f, 1000.0f);
-	mat4 perspectiveMatrix = glm::perspective(100.0f, 1.0f, 0.01f, 1000.0f);
-	perspectiveMatrix *= viewMatrix;
-	setShaderMatrix(programIndex, "cameraMatrix", perspectiveMatrix);
-	cout << cameraPos.x << "  " << cameraPos.y <<  endl;
+
+
+
 	
 }
 
 void draw() {
 	//cout<<"Drawing"<<endl;
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnableVertexAttribArray(0);
-	glBindVertexArray(arrayIndex);
-	glDrawArrays(
-		GL_TRIANGLES,
-		0,
-		numCubeVertices);
+	player->Draw(programIndex, worldMatrix, currentPosition, currentScale);
 	glFlush();
 
 
 }  
-
-vector<GLfloat> loadOBJ(const char* filename)
-{
-	vector<float> outVertices;
-	vector<vec2> uvs;
-	vector<vec3> vertices;
-	vector<vec3> normals;
-
-	ifstream in(filename, ios::in);
-	if (!in)
-	{
-		cerr << "Cannot open " << filename << endl; exit(1);
-	}
-
-	string line;
-	while (getline(in, line))
-	{
-
-		if (line.substr(0, 2) == "v "){
-			istringstream s(line.substr(2));
-			vec3 vertex;
-			s >> vertex.x;
-			s >> vertex.y;
-			s >> vertex.z;
-			vertices.push_back(vertex);
-		}
-		else if (line.substr(0, 2) == "vn"){
-			istringstream s(line.substr(2));
-			vec3 normal;
-			s >> normal.x;
-			s >> normal.y;
-			s >> normal.z;
-			normals.push_back(normal);
-		}
-		else if (line.substr(0, 2) == "vt"){
-			istringstream s(line.substr(2));
-			vec2 uv;
-			s >> uv.x;
-			s >> uv.y;
-			uvs.push_back(uv);
-		}
-		else if (line.substr(0, 2) == "f ")
-		{
-			istringstream s(line.substr(2));
-			GLushort a, b, c;
-			char temp;
-			s >> a;
-			s >> temp;
-			s >> b;
-			s >> temp;
-			s >> c;
-
-			cout << a << "/" << b << "/" << c << endl;
-
-			a--; 
-			b--; 
-			c--;
-			outVertices.push_back(vertices[a].x);
-			outVertices.push_back(vertices[a].y);
-			outVertices.push_back(vertices[a].z);
-
-			outVertices.push_back(uvs[b].x);
-			outVertices.push_back(uvs[b].y);
-
-			outVertices.push_back(normals[c].x);
-			outVertices.push_back(normals[c].y);
-			outVertices.push_back(normals[c].z);
-
-			s >> a; s >> temp; s >> b; s >> temp; s >> c;
-			cout << a << "/" << b << "/" << c << endl;
-			a--; b--; c--;
-			outVertices.push_back(vertices[a].x);
-			outVertices.push_back(vertices[a].y);
-			outVertices.push_back(vertices[a].z);
-
-			outVertices.push_back(uvs[b].x);
-			outVertices.push_back(uvs[b].y);
-
-			outVertices.push_back(normals[c].x);
-			outVertices.push_back(normals[c].y);
-			outVertices.push_back(normals[c].z);
-
-			s >> a; s >> temp; s >> b; s >> temp; s >> c;
-			cout << a << "/" << b << "/" << c << endl;
-			a--; b--; c--;
-			outVertices.push_back(vertices[a].x);
-			outVertices.push_back(vertices[a].y);
-			outVertices.push_back(vertices[a].z);
-
-			outVertices.push_back(uvs[b].x);
-			outVertices.push_back(uvs[b].y);
-
-			outVertices.push_back(normals[c].x);
-			outVertices.push_back(normals[c].y);
-			outVertices.push_back(normals[c].z);
-		}
-	}
-	return outVertices;
-}
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods){
 	//If mouse is clicking
@@ -360,46 +209,46 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 bool firstMouse = true;;
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
-	if (firstMouse){
-		lastCursorX = xpos;
-		lastCursorY = ypos;
-		firstMouse = false;
-	}
-	//Calculate world position of cursor
-	int width, height;
-	glfwGetWindowSize(window, &width, &height);
-
-	double worldX, worldY;
-	if (xpos > width / 2){
-		worldX = (xpos - (width / 2)) / (width / 2);
-	}
-	else{
-		worldX = (xpos / (width / 2)) - 1;
-	}
-	if (ypos > height / 2){
-		worldY = (-1 * (ypos - height / 2)) / (height / 2);
-	}
-	else{
-		worldY = -1 * ((ypos / (height / 2)) - 1);
-	}
-	float offsetX = xpos - lastCursorX;
-	float offsetY = lastCursorY - ypos;
-
-	lastCursorX = xpos;
-	lastCursorY = ypos;
-
-	float sensitivity = .05f;
-	offsetX *= sensitivity;
-	offsetY *= sensitivity;
-	camera.turn(offsetX, offsetY);
-	yaw += offsetX;
-	pitch += offsetY;
-	vec3 front;
-	front.x = cos(radians(pitch)) * cos(radians(yaw));
-	front.y = sin(radians(pitch));
-	front.z = cos(radians(pitch)) * sin(radians(yaw));
-
-	cameraFront = normalize(front);
+	//if (firstMouse){
+	//	lastCursorX = xpos;
+	//	lastCursorY = ypos;
+	//	firstMouse = false;
+	//}
+	////Calculate world position of cursor
+	//int width, height;
+	//glfwGetWindowSize(window, &width, &height);
+	//
+	//double worldX, worldY;
+	//if (xpos > width / 2){
+	//	worldX = (xpos - (width / 2)) / (width / 2);
+	//}
+	//else{
+	//	worldX = (xpos / (width / 2)) - 1;
+	//}
+	//if (ypos > height / 2){
+	//	worldY = (-1 * (ypos - height / 2)) / (height / 2);
+	//}
+	//else{
+	//	worldY = -1 * ((ypos / (height / 2)) - 1);
+	//}
+	//float offsetX = xpos - lastCursorX;
+	//float offsetY = lastCursorY - ypos;
+	//
+	//lastCursorX = xpos;
+	//lastCursorY = ypos;
+	//
+	//float sensitivity = .05f;
+	//offsetX *= sensitivity;
+	//offsetY *= sensitivity;
+	//camera.turn(offsetX, offsetY);
+	//yaw += offsetX;
+	//pitch += offsetY;
+	//vec3 front;
+	//front.x = cos(radians(pitch)) * cos(radians(yaw));
+	//front.y = sin(radians(pitch));
+	//front.z = cos(radians(pitch)) * sin(radians(yaw));
+	//
+	//cameraFront = normalize(front);
 }
 static void error_callback(int error, const char* description)
 {
@@ -416,15 +265,15 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	float cameraSpeed = .2f * deltaTime;
 
 	if (key == GLFW_KEY_W){
-		camera.pos += cameraSpeed * normalize(cameraFront);
+		//camera.pos += cameraSpeed * normalize(cameraFront);
 	}
 	if (key == GLFW_KEY_A){
-		camera.pos -= camera.getRight()*cameraSpeed;
+		//camera.pos -= camera.getRight()*cameraSpeed;
 	}
 	if (key == GLFW_KEY_S){
-		camera.pos -= cameraSpeed * normalize(cameraFront);
+		//camera.pos -= cameraSpeed * normalize(cameraFront);
 	}
 	if (key == GLFW_KEY_D){
-		camera.pos += camera.getRight()*cameraSpeed;
+		//camera.pos += camera.getRight()*cameraSpeed;
 	}
 }

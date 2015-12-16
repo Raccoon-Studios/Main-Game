@@ -1,15 +1,16 @@
 #include "Camera.h"
+#include <iostream>
 #include <glm\glm.hpp>
 #include <glm\gtx\transform.hpp>
 using namespace glm;
-
+using namespace std;
 
 Camera::Camera()
 {
-	this->pos = vec3(0.0f, 0.0f, 1.0f);
+	this->pos = vec3(-10.0f, 0.0f, 0.0f);
 	this->up = vec3(0.0f, 1.0f, 0.0f);
 	//this->right = 
-	//this->forward =
+	//this->forward = vec3(0.0f, 0.0f, 1.0f);
 	this->yaw = 0;
 	this->pitch = 0;
 }
@@ -25,6 +26,7 @@ vec3 Camera::getForward()
 	forward.y = sin(radians(pitch));
 	forward.z = sin(radians(yaw)) * cos(radians(pitch));
 	forward = normalize(forward);
+	
 	return forward;
 }
 

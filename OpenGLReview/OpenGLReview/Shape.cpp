@@ -8,6 +8,9 @@
 #include<iostream>
 #include<fstream>
 #include<SOIL.h>
+
+
+
 #pragma once
 using namespace std;
 
@@ -45,19 +48,6 @@ Shape::Shape(vector<glm::vec3> vertices, int numVertices, int numComponents, vec
 
 	for (int i = 0; i < vertexIndices.size(); i++)
 	{
-		/*
-		faces.push_back(shapeVertices[vertexIndices[i]].x);
-		faces.push_back(shapeVertices[vertexIndices[i]].y);
-		faces.push_back(shapeVertices[vertexIndices[i]].z);
-
-		faces.push_back(shapeUVs[uvIndices[i]].x);
-		faces.push_back(shapeUVs[uvIndices[i]].y);
-
-		faces.push_back(shapeNormals[normalIndices[i]].x);
-		faces.push_back(shapeNormals[normalIndices[i]].y);
-		faces.push_back(shapeNormals[normalIndices[i]].z);
-		*/
-
 		faces.push_back(vertices[i].x);
 		faces.push_back(vertices[i].y);
 		faces.push_back(vertices[i].z);
@@ -114,6 +104,9 @@ Shape::Shape(vector<glm::vec3> vertices, int numVertices, int numComponents, vec
 	currentPosition.x = 0.0f;
 	currentPosition.y = 0.0f;
 
+
+	scale = glm::vec3(0.25, 0.25, 0.25);
+
 	scaleVec = glm::vec3(1, 1, 1);
 	rotationAxis = glm::vec3(0, 1, 0);
 	rotationAmount = 0.0f;
@@ -121,6 +114,17 @@ Shape::Shape(vector<glm::vec3> vertices, int numVertices, int numComponents, vec
 	offsetUniformVarLoc = glGetUniformLocation(shaderProgramIndex, "offset");
 	scaleUniformVarLoc = glGetUniformLocation(shaderProgramIndex, "scale");
 	worldMatUniformVarLoc = glGetUniformLocation(shaderProgramIndex, "worldMatrix");
+
+	es[0] = scale.x / 2;
+	es[1] = scale.y / 2;
+	es[2] = scale.z / 2;
+
+	us[0] = glm::vec4(1.0, 0, 0, 0);
+	us[1] = glm::vec4(0, 1.0, 0, 0);
+	us[2] = glm::vec4(0, 0, 1.0, 0);
+
+
+	obb = Obb(currentPosition, us, es);
 
 }
 
@@ -149,6 +153,7 @@ void Shape::Draw(glm::vec3 position, glm::vec3 scale, glm::vec3 rotationaxis, fl
 
 	
 	glBindVertexArray(vertexArrayObject);
+
 	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebuffer);
 	//glBindTexture(GL_TEXTURE_2D, texID);
 	//glBindVertexArray(vertexArrayObject);
@@ -158,16 +163,66 @@ void Shape::Draw(glm::vec3 position, glm::vec3 scale, glm::vec3 rotationaxis, fl
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void *)0);
 }
 
-/*
-Error	1	error C2719: 'worldMatrix': formal parameter with __declspec(align('16')) won't be aligned	j:\openglreview\openglreview\shape.cpp	84?
-
-
-void Shape::Draw(glm::mat4 worldMatrix)
+void Shape::Update()
 {
-	glProgramUniformMatrix4fv(shaderProgramIndex, worldMatUniformVarLoc, 1, GL_FALSE, &worldMatrix[0][0]);
+	vel += accel;
+	currentPosition += vel;
 
-	glBindVertexArray(vertexArrayObject);
-
-	glDrawArrays(GL_TRIANGLES, 0, numVertices);
+	accel = glm::vec3(0, 0, 0);
+	obb.SetCenter(currentPosition);
 }
-*/
+
+glm::vec3 Shape::GetAccel()
+{
+	return accel;
+}
+
+void Shape::SetAccel(glm::vec3 newAccel)
+{
+	accel = newAccel;
+}
+
+glm::vec3 Shape::GetVel()
+{
+	return vel;
+}
+
+glm::vec3 Shape::GetScale()
+{
+	return scale;
+}
+
+void Shape::SetScale(glm::vec3 newScale)
+{
+	scale = newScale;
+
+	es[0] = scale.x / 2;
+	es[1] = scale.y / 2;
+	es[2] = scale.z / 2;
+	obb.SetWidths(es);
+}
+
+glm::vec3 Shape::GetRotAxis()
+{
+	return rotationAxis;
+}
+
+void Shape::SetRotAxis(glm::vec3 newRotAxis)
+{
+	rotationAxis = newRotAxis;
+}
+
+float Shape::GetRotAmnt()
+{
+	return rotationAmount;
+}
+
+glm::vec3 Shape::GetPos()
+{
+	return currentPosition;
+}
+
+Obb* Shape::GetOBB()
+{
+	return &obb;
+}

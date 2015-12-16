@@ -46,9 +46,12 @@ int clickTrack = 0;
 float deltaTime;
 float currentTime;
 int triCount = 0;
-
+int debugLoop = 0;
+int collCount = 0;
 GLFWwindow* windowPtr;
 mat4 view;
+
+vector<Obb*> colliders;
 
 Shape* cube;
 Shape* cube2;
@@ -77,6 +80,9 @@ void init()
 	camera = Camera();
 	cube = new Shape(vertices, vertices.size(), vertices.size() * 3, vertexIndices, uvIndices, normalIndices, uvs, normals, shader);
 	cube2 = new Shape(vertices, vertices.size(), vertices.size() * 3, vertexIndices, uvIndices, normalIndices, uvs, normals, shader);
+
+	colliders.push_back(cube->GetOBB());
+	colliders.push_back(cube2->GetOBB());
 
 	GLfloat verticesTriangle[3 * 5] =
 	{
@@ -108,7 +114,8 @@ void update()
 	if (stateA == GLFW_PRESS)
 	{
 		
-		camera.pos -= 0.005f * camera.getRight();
+		//camera.pos -= 0.005f * camera.getRight();
+		cube->SetAccel(glm::vec3(0,0, 0.00125));
 	}
 
 	if (stateS == GLFW_PRESS)
@@ -119,7 +126,8 @@ void update()
 
 	if (stateD == GLFW_PRESS)
 	{
-		camera.pos += 0.005f * camera.getRight();
+		//camera.pos += 0.005f * camera.getRight();
+		cube->SetAccel(glm::vec3(0, 0, -0.00125));
 
 	}
 
@@ -129,6 +137,7 @@ void update()
 
 	}
 
+	/*
 	double cursorXPos;
 	double cursorYPos;
 	double convXPos;
@@ -136,6 +145,7 @@ void update()
 	glfwGetCursorPos(windowPtr, &cursorXPos, &cursorYPos);
 	convXPos = 2.0f * (((float)cursorXPos / (float)windowWidth) - 0.5f);
 	convYPos = -2.0f * (((float)cursorYPos / (float)windowHeight) - 0.5f);
+	*/
 
 	//camera.yaw += 0.001f;
 	//camera.pitch += 0.001f;
@@ -153,6 +163,21 @@ void update()
 	//deltaTime /= 1000;
 	lastTime = currentTime;
 	
+	cube->Update();
+	cube2->Update();
+
+	for (int i = 0; i < colliders.size(); i++)
+	{
+		for (int k = i + 1; k < colliders.size(); k++)
+		{
+			if (colliders[i]->CollCheck(colliders[k]))
+			{
+				collCount++;
+				cout << "Collision # " << collCount <<  endl;
+			}
+		}
+	}
+	
 	
 	
 }
@@ -165,23 +190,9 @@ void draw()
 	helper.setShaderColor(shader, "uniformVector", 0.7f, 0.6f, 0.3f);
 	
 
-	cube->Draw(glm::vec3(0, 0, 0), glm::vec3(0.25, 0.25, 0.25), glm::vec3(0, 0, 1), curRotAmount, &cameraMat, &view);
-	cube2->Draw(glm::vec3(-0.5, -0.5, -0.5), glm::vec3(0.5, 0.25, 0.5), glm::vec3(0, 0, 1), curRotAmount, &cameraMat, &view);
-	//cube1.Draw();
-	
-	
-	//triangle->Draw(triangle->currentPosition, triangle->scale, triangle->rotationAxis, triangle->rotationAmount);
-	
-	/*
-	for (int i = 0; i < 100; i++)
-	{
-		triVec[i].Draw();
-	}
-	tri1.Draw();
-	*/
-	//cout << "Current Time: " << currentTime << endl;
-	//cout << "Last Time: " << lastTime << endl;
-	//cout << deltaTime << endl;
+	cube->Draw(cube->GetPos(), cube->GetScale(), cube->GetRotAxis(), cube->GetRotAmnt(), &cameraMat, &view);
+	cube2->Draw(cube2->GetPos(), cube2->GetScale(), cube2->GetRotAxis(), cube->GetRotAmnt(), &cameraMat, &view);
+
 	glFlush();
 
 }
@@ -205,36 +216,7 @@ void mouseCallback(GLFWwindow*, double xPos, double yPos)
 
 void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
-	//int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-
-	/*if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
-	{
-		camera.pos.z += 0.004;
-	}*/
-
-	//if (button == GLFW_MOUSE_BUTTON_LEFT && state == GLFW_PRESS)
-	{/*
-		double cursorXPos;
-		double cursorYPos;
-		double convXPos;
-		double convYPos;
-		glfwGetCursorPos(window, &cursorXPos, &cursorYPos);
-		convXPos = 2.0f * (((float)cursorXPos / (float)windowWidth) - 0.5f);
-		convYPos = -2.0f * (((float)cursorYPos / (float)windowHeight) - 0.5f);
-		//cout << "CursorPos: " << cursorXPos << endl << cursorYPos << endl;
-		//cout << "ConvPos: " << convXPos << endl << convYPos << endl;
-		//triVec[triCount].setPosition(convXPos, convYPos);
-		triCount++;
-		if (triCount > 99)
-		{
-			triCount = 0;
-		}
-		//tri1.setPosition(convXPos, convYPos);
-		//triangle->currentPosition.x = convXPos;
-		//triangle->currentPosition.y = convYPos;
-
-		*/
-	}
+	
 }
 
 int main()

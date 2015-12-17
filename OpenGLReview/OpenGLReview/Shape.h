@@ -36,6 +36,7 @@ public:
 	float GetRotAmnt();
 	Obb * GetOBB();
 
+	void SetPos(glm::vec3 newPos);
 	void SetScale(glm::vec3 scaleVec);
 	void SetAccel(glm::vec3 accel);
 	void SetRotAxis(glm::vec3 rotAxis);

@@ -226,3 +226,9 @@ Obb* Shape::GetOBB()
 {
 	return &obb;
 }
+
+void Shape::SetPos(glm::vec3 newPos)
+{
+	currentPosition = newPos;
+	obb.SetCenter(newPos);
+}

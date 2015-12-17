@@ -7,7 +7,7 @@ using namespace std;
 
 Camera::Camera()
 {
-	this->pos = vec3(-10.0f, 0.0f, 0.0f);
+	this->pos = vec3(-20.0f, 0.0f, 0.0f);
 	this->up = vec3(0.0f, 1.0f, 0.0f);
 	//this->right = 
 	//this->forward = vec3(0.0f, 0.0f, 1.0f);

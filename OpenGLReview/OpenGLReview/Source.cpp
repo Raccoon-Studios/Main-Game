@@ -102,7 +102,7 @@ void init()
 	}
 	else
 	{
-		cout << "error ocurred" << endl;
+		//cout << "error ocurred" << endl;
 	}
 
 	helper.setShaderColor(shader, "uniformVector", 0.5f, 0.0f, 0.5f);
@@ -251,6 +251,8 @@ void update()
 		int stateD = glfwGetKey(windowPtr, GLFW_KEY_D);
 		int stateUp = glfwGetKey(windowPtr, GLFW_KEY_UP);
 		int stateDown = glfwGetKey(windowPtr, GLFW_KEY_DOWN);
+		int stateLeft = glfwGetKey(windowPtr, GLFW_KEY_LEFT);
+		int stateRight = glfwGetKey(windowPtr, GLFW_KEY_RIGHT);
 		int stateQ = glfwGetKey(windowPtr, GLFW_KEY_Q);
 		int stateEnter = glfwGetKey(windowPtr, GLFW_KEY_ENTER);
 
@@ -300,6 +302,21 @@ void update()
 			cube->SetAccel(glm::vec3(0, 0, -0.00125*deltaTime));
 
 		}
+
+		if (stateLeft == GLFW_PRESS)
+		{
+
+			//camera.pos -= 0.005f * camera.getRight();
+			cube->SetAccel(glm::vec3(0, 0, 0.00125*deltaTime));
+		}
+
+		if (stateRight == GLFW_PRESS)
+		{
+			//camera.pos += 0.005f * camera.getRight();
+			cube->SetAccel(glm::vec3(0, 0, -0.00125*deltaTime));
+
+		}
+
 		if (stateQ == GLFW_PRESS)
 		{
 			glfwSetWindowShouldClose(windowPtr, 1);
@@ -376,7 +393,7 @@ void update()
 
 					//If it's colliding with a wall
 					if (collidingType == 0){
-						cout << "yo its colliding with a wall!!" << endl;
+						//cout << "yo its colliding with a wall!!" << endl;
 
 						//If the original object is a ball
 						if (colliders[i]->GetIsBall()){
@@ -408,7 +425,7 @@ void update()
 					}
 					//If it's colliding with a ball
 					else if (collidingType == 1){
-						cout << "yo its colliding with a ball!!" << endl;
+						//cout << "yo its colliding with a ball!!" << endl;
 
 						//If the original object is a paddle
 						if (colliders[i]->GetIsRightPaddle() || colliders[i]->GetIsLeftPaddle()){
@@ -446,7 +463,7 @@ void update()
 					}
 					//If it's colliding with a paddle
 					else if (collidingType == 2 || collidingType == 3){
-						cout << "yo its colliding with a paddle!!" << endl;
+						//cout << "yo its colliding with a paddle!!" << endl;
 
 						//If the original object is a ball
 						if (colliders[i]->GetIsBall()){
@@ -458,7 +475,7 @@ void update()
 
 					}
 					else{
-						cout << "stuff broke" << endl;
+						//cout << "stuff broke" << endl;
 					}
 					//Put in colliders[k]
 				}
@@ -621,7 +638,7 @@ void mouseCallback(GLFWwindow*, double xPos, double yPos)
 void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
 	glm::vec3 pos = bWall->GetPos();
-	cout << "bWall Pos: " << pos.x << " " << pos.y << " " << pos.z << endl;
+	//cout << "bWall Pos: " << pos.x << " " << pos.y << " " << pos.z << endl;
 }
 
 int main()

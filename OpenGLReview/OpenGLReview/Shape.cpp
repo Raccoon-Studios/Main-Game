@@ -184,7 +184,7 @@ void Shape::Update()
 				vel.y += .00075;
 		}
 	}
-	cout << "Velocity: " << vel.y << endl;
+	//cout << "Velocity: " << vel.y << endl;
 	obb.SetCenter(currentPosition);
 }
 

@@ -365,7 +365,7 @@ void update()
 
 		for (int i = 0; i < colliders.size(); i++)
 		{
-			for (int k = i + 1; k < colliders.size(); k++)
+			for (int k = 0; k < colliders.size(); k++)
 			{
 				if (colliders[i]->CollCheck(colliders[k]))
 				{
@@ -414,14 +414,34 @@ void update()
 						if (colliders[i]->GetIsRightPaddle() || colliders[i]->GetIsLeftPaddle()){
 
 							//If it's the right paddle and the ball is not to the left (The ball is underneath)
-							if ((colliders[i]->GetIsRightPaddle() || colliders[i]->GetIsLeftPaddle()) && colliders[k]->GetCenter().z <= colliders[i]->GetCenter().z){
-								colliders[i]->GetShape()->SetVel(vec3(colliders[i]->GetShape()->GetVel().x, colliders[i]->GetShape()->GetVel().y, 0));
+							if ((colliders[i]->GetIsLeftPaddle()) && colliders[k]->GetCenter().z - 0.125f <= colliders[i]->GetCenter().z){
+								colliders[i]->GetShape()->SetVel(vec3(colliders[i]->GetShape()->GetVel().x, 0, 0));
+								for (int j = 0; j < 4; j++)
+								{
+									lPaddle[j]->SetVel(vec3(colliders[i]->GetShape()->GetVel().x, 0, 0));
+								}
 							}
-							else if ((colliders[i]->GetIsRightPaddle() || colliders[i]->GetIsLeftPaddle()) && colliders[k]->GetCenter().z >= colliders[i]->GetCenter().z){
-								colliders[i]->GetShape()->SetVel(vec3(colliders[i]->GetShape()->GetVel().x, colliders[i]->GetShape()->GetVel().y, 0));
+							else if ((colliders[i]->GetIsLeftPaddle()) && colliders[k]->GetCenter().z - 0.125f >= colliders[i]->GetCenter().z){
+								colliders[i]->GetShape()->SetVel(vec3(colliders[i]->GetShape()->GetVel().x, 0, 0));
+								for (int j = 0; j < 4; j++)
+								{
+									lPaddle[j]->SetVel(vec3(colliders[i]->GetShape()->GetVel().x, 0, 0));
+								}
 							}
-
-
+							if ((colliders[i]->GetIsRightPaddle()) && colliders[k]->GetCenter().z + 0.125f <= colliders[i]->GetCenter().z){
+								colliders[i]->GetShape()->SetVel(vec3(colliders[i]->GetShape()->GetVel().x, 0, 0));
+								for (int j = 0; j < 4; j++)
+								{
+									rPaddle[j]->SetVel(vec3(colliders[i]->GetShape()->GetVel().x, 0, 0));
+								}
+							}
+							else if ((colliders[i]->GetIsRightPaddle()) && colliders[k]->GetCenter().z + 0.125f >= colliders[i]->GetCenter().z){
+								colliders[i]->GetShape()->SetVel(vec3(colliders[i]->GetShape()->GetVel().x, 0, 0));
+								for (int j = 0; j < 4; j++)
+								{
+									rPaddle[j]->SetVel(vec3(colliders[i]->GetShape()->GetVel().x, 0, 0));
+								}
+							}
 						}
 					}
 					//If it's colliding with a paddle

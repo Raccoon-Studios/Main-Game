@@ -14,6 +14,11 @@ Obb::Obb(glm::vec3 cent, glm::vec4 us[3], float es[3])
 	e[1] = es[1];
 	e[2] = es[2];
 
+	isWall = false;
+	isBall = false;
+	isRightPaddle = false;
+	isLeftPaddle = false;
+
 }
 Obb::Obb()
 {
@@ -27,6 +32,10 @@ Obb::~Obb()
 // false = no collision true = collision
 bool Obb::CollCheck(Obb* obb1)
 {
+	if ((isLeftPaddle && obb1->GetIsLeftPaddle()) || (isRightPaddle && obb1->GetIsRightPaddle()) ){
+		return false;
+	}
+
 	float ra, rb;
 	glm::mat3x3 R, AbsR;
 
@@ -105,9 +114,27 @@ bool Obb::CollCheck(Obb* obb1)
 	rb = obb1->e[0] * AbsR[2][1] + obb1->e[1] * AbsR[2][0];
 	if (abs(t[1] * R[0][2] - t[0] * R[1][2]) > ra + rb) return false;
 
+
+
 	return true;
 
 
+}
+
+int Obb::GetCollidingWith(Obb* obb1){
+
+	//If it's colliding with a wall, return 0
+	if (obb1->GetIsWall())return 0;
+
+	//If it's colliding with a ball, return 1
+	if (obb1->GetIsBall())return 1;
+
+	//If it's colliding with a paddle, return 2
+	if (obb1->GetIsRightPaddle())return 2;
+
+	if (obb1->GetIsLeftPaddle())return 3;
+
+	return -1;
 }
 
 int Obb::GetObbNum()
@@ -153,4 +180,37 @@ void Obb::SetWidths(float es[3])
 	e[0] = es[0];
 	e[1] = es[1];
 	e[2] = es[2];
+}
+
+bool Obb::GetIsBall(){
+	return isBall;
+}
+bool Obb::GetIsRightPaddle(){
+	return isRightPaddle;
+}
+bool Obb::GetIsLeftPaddle(){
+	return isLeftPaddle;
+}
+bool Obb::GetIsWall(){
+	return isWall;
+}
+
+void Obb::SetIsBall(bool value){
+	isBall = value;
+}
+void Obb::SetIsWall(bool value){
+	isWall = value;
+}
+void Obb::SetIsRightPaddle(bool value){
+	isRightPaddle = value;
+}
+void Obb::SetIsLeftPaddle(bool value){
+	isLeftPaddle = value;
+}
+
+Shape* Obb::GetShape(){
+	return shape;
+}
+void Obb::SetShape(Shape* shape1){
+	shape = shape1;
 }

@@ -125,6 +125,7 @@ Shape::Shape(vector<glm::vec3> vertices, int numVertices, int numComponents, vec
 
 
 	obb = Obb(currentPosition, us, es);
+	obb.SetShape(this);
 
 }
 
@@ -133,11 +134,6 @@ Shape::~Shape()
 {
 	glDeleteVertexArrays(sizeof(vertexArrayObject), &vertexArrayObject);
 	glDeleteBufferRegion(vertexBufferObject);
-}
-
-void Shape::Draw(float x, float y, float xScale, float yScale)
-{
-
 }
 
 void Shape::Draw(glm::vec3 position, glm::vec3 scale, glm::vec3 rotationaxis, float rotationAmount, glm::mat4* camera, glm::mat4* view)
@@ -169,6 +165,26 @@ void Shape::Update()
 	currentPosition += vel;
 
 	accel = glm::vec3(0, 0, 0);
+
+	if (obb.GetIsLeftPaddle() || obb.GetIsRightPaddle())
+	{
+		if (vel.y > 0)
+		{
+			if (vel.y < .00075)
+				vel.y = 0;
+			else
+				vel.y -= .00075;
+		}
+
+		if (vel.y < 0)
+		{
+			if (vel.y > -.00075)
+				vel.y = 0;
+			else
+				vel.y += .00075;
+		}
+	}
+	cout << "Velocity: " << vel.y << endl;
 	obb.SetCenter(currentPosition);
 }
 
@@ -185,6 +201,10 @@ void Shape::SetAccel(glm::vec3 newAccel)
 glm::vec3 Shape::GetVel()
 {
 	return vel;
+}
+void Shape::SetVel(glm::vec3 newVel)
+{
+	vel = newVel;
 }
 
 glm::vec3 Shape::GetScale()

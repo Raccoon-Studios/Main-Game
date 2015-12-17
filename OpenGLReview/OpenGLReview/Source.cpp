@@ -93,26 +93,38 @@ void init()
 	mHelper.loadTextFile("Meshes//mesh2.obj", vertices, uvs, normals, vertexIndices, uvIndices, normalIndices);
 	camera = Camera();
 	cube = new Shape(vertices, vertices.size(), vertices.size() * 3, vertexIndices, uvIndices, normalIndices, uvs, normals, shader);
-	cube2 = new Shape(vertices, vertices.size(), vertices.size() * 3, vertexIndices, uvIndices, normalIndices, uvs, normals, shader);
+	cube->GetOBB()->SetIsBall(true);
+	//cube2 = new Shape(vertices, vertices.size(), vertices.size() * 3, vertexIndices, uvIndices, normalIndices, uvs, normals, shader);
 	
 	bWall = new Shape(vertices, vertices.size(), vertices.size() * 3, vertexIndices, uvIndices, normalIndices, uvs, normals, shader);
 	tWall = new Shape(vertices, vertices.size(), vertices.size() * 3, vertexIndices, uvIndices, normalIndices, uvs, normals, shader);
+	bWall->GetOBB()->SetIsWall(true);
+	tWall->GetOBB()->SetIsWall(true);
 
 	lpaddle1 = new Shape(vertices, vertices.size(), vertices.size() * 3, vertexIndices, uvIndices, normalIndices, uvs, normals, shader);
 	lpaddle2 = new Shape(vertices, vertices.size(), vertices.size() * 3, vertexIndices, uvIndices, normalIndices, uvs, normals, shader);
 	lpaddle3 = new Shape(vertices, vertices.size(), vertices.size() * 3, vertexIndices, uvIndices, normalIndices, uvs, normals, shader);
 	lpaddle4 = new Shape(vertices, vertices.size(), vertices.size() * 3, vertexIndices, uvIndices, normalIndices, uvs, normals, shader);
 
+	lpaddle1->GetOBB()->SetIsLeftPaddle(true);
+	lpaddle2->GetOBB()->SetIsLeftPaddle(true);
+	lpaddle3->GetOBB()->SetIsLeftPaddle(true);
+	lpaddle4->GetOBB()->SetIsLeftPaddle(true);
+
 	rpaddle1 = new Shape(vertices, vertices.size(), vertices.size() * 3, vertexIndices, uvIndices, normalIndices, uvs, normals, shader);
 	rpaddle2 = new Shape(vertices, vertices.size(), vertices.size() * 3, vertexIndices, uvIndices, normalIndices, uvs, normals, shader);
 	rpaddle3 = new Shape(vertices, vertices.size(), vertices.size() * 3, vertexIndices, uvIndices, normalIndices, uvs, normals, shader);
 	rpaddle4 = new Shape(vertices, vertices.size(), vertices.size() * 3, vertexIndices, uvIndices, normalIndices, uvs, normals, shader);
 
+	rpaddle1->GetOBB()->SetIsRightPaddle(true);
+	rpaddle2->GetOBB()->SetIsRightPaddle(true);
+	rpaddle3->GetOBB()->SetIsRightPaddle(true);
+	rpaddle4->GetOBB()->SetIsRightPaddle(true);
+
 	colliders.push_back(cube->GetOBB());
-	colliders.push_back(cube2->GetOBB());
+	//colliders.push_back(cube2->GetOBB());
 	
-	colliders.push_back(bWall->GetOBB());
-	colliders.push_back(tWall->GetOBB());
+	
 
 	colliders.push_back(lpaddle1->GetOBB());
 	colliders.push_back(lpaddle2->GetOBB());
@@ -133,6 +145,9 @@ void init()
 	rPaddle.push_back(rpaddle2);
 	rPaddle.push_back(rpaddle3);
 	rPaddle.push_back(rpaddle4);
+
+	colliders.push_back(bWall->GetOBB());
+	colliders.push_back(tWall->GetOBB());
 
 	lpaddle1->SetScale(glm::vec3(0.25, 0.25, 0.25));
 	lpaddle1->SetPos(glm::vec3(0, 0.5, 5.17));
@@ -176,6 +191,8 @@ void init()
 
 
 	glClearColor(0.0f, 0.0f, 0.5f, 1.0f);
+
+	cube->SetVel(vec3(0, 0, .01));
 }
 
 void update()
@@ -186,6 +203,8 @@ void update()
 	int stateA = glfwGetKey(windowPtr, GLFW_KEY_A);
 	int stateS = glfwGetKey(windowPtr, GLFW_KEY_S);
 	int stateD = glfwGetKey(windowPtr, GLFW_KEY_D);
+	int stateUp = glfwGetKey(windowPtr, GLFW_KEY_UP);
+	int stateDown = glfwGetKey(windowPtr, GLFW_KEY_DOWN);
 	int stateQ = glfwGetKey(windowPtr, GLFW_KEY_Q);
 
 	if (stateW == GLFW_PRESS)
@@ -193,15 +212,40 @@ void update()
 		for (int i = 0; i < lPaddle.size(); i++)
 		{
 			lPaddle[i]->SetAccel(glm::vec3(0, -0.00125, 0));
+			//lPaddle[i]->SetVel(glm::vec3(0, .01, 0));
 		}
-		
+
 	}
+	if (stateS == GLFW_PRESS)
+	{
+		for (int i = 0; i < lPaddle.size(); i++)
+		{
+			lPaddle[i]->SetAccel(glm::vec3(0, 0.00125, 0));
+		}
+	}
+
+	if (stateUp == GLFW_PRESS)
+	{
+		for (int i = 0; i < rPaddle.size(); i++)
+		{
+			rPaddle[i]->SetAccel(glm::vec3(0, -0.00125, 0));
+		}
+
+	}
+	if (stateDown == GLFW_PRESS)
+	{
+		for (int i = 0; i < rPaddle.size(); i++)
+		{
+			rPaddle[i]->SetAccel(glm::vec3(0, 0.00125, 0));
+		}
+	}
+
 
 	if (stateA == GLFW_PRESS)
 	{
-		
+
 		//camera.pos -= 0.005f * camera.getRight();
-		cube->SetAccel(glm::vec3(0,0, 0.00125));
+		cube->SetAccel(glm::vec3(0, 0, 0.00125));
 	}
 
 	if (stateS == GLFW_PRESS)
@@ -252,7 +296,7 @@ void update()
 	lastTime = currentTime;
 	
 	cube->Update();
-	cube2->Update();
+	//cube2->Update();
 
 	lpaddle1 ->Update();
 	lpaddle2->Update();
@@ -274,11 +318,81 @@ void update()
 			if (colliders[i]->CollCheck(colliders[k]))
 			{
 				collCount++;
-				cout << "Collision # " << collCount <<  endl;
+				//cout << "Collision # " << collCount <<  endl;
+				//Call getCollding with, check the number 
+				int collidingType = colliders[i]->GetCollidingWith(colliders[k]);
+
+				//If it's colliding with a wall
+				if (collidingType == 0){
+					cout << "yo its colliding with a wall!!" << endl;
+					
+					//If the original object is a ball
+					if (colliders[i]->GetIsBall()){
+						//	reverse ball velocity
+						float zVel = colliders[i]->GetShape()->GetVel().z;
+						float yVel = -1 * colliders[i]->GetShape()->GetVel().y;
+						colliders[i]->GetShape()->SetVel(vec3(0, yVel, zVel));
+					}
+					//If the original object is the right paddle
+					else if (colliders[i]->GetIsRightPaddle()){
+
+						
+						for (int m = 0; m < rPaddle.size(); m++){
+
+							//Bounce off wall
+							float yVel = -.5 * rPaddle[m]->GetVel().y;
+							rPaddle[m]->SetVel(vec3(0, yVel, 0));
+						}
+					}
+					//If the original object is the left paddle 
+					else if (colliders[i]->GetIsLeftPaddle()){
+						for (int m = 0; m < lPaddle.size(); m++){
+
+							//Bounce off wall
+							float yVel = -.5 * lPaddle[m]->GetVel().y;
+							lPaddle[m]->SetVel(vec3(0, yVel, 0));
+						}
+					}
+				}
+				//If it's colliding with a ball
+				else if (collidingType == 1){
+					cout << "yo its colliding with a ball!!" << endl;
+					
+					//If the original object is a paddle
+					if (colliders[i]->GetIsRightPaddle() || colliders[i]->GetIsLeftPaddle()){
+						
+						//If it's the right paddle and the ball is not to the left (The ball is underneath)
+						if (colliders[i]->GetIsRightPaddle()){
+							//Stop the paddle
+						}
+						else if (colliders[i]->GetIsLeftPaddle()){
+
+						}
+						
+					}
+				}
+				//If it's colliding with a paddle
+				else if (collidingType == 2 || collidingType == 3){
+					cout << "yo its colliding with a paddle!!" << endl;
+
+					//If the original object is a ball
+					if (colliders[i]->GetIsBall()){
+						//	reverse ball velocity
+						float zVel = -1 * colliders[i]->GetShape()->GetVel().z;
+						float yVel = colliders[i]->GetShape()->GetVel().y;
+						colliders[i]->GetShape()->SetVel(vec3(0, yVel, zVel));
+					}
+
+				}
+				else{
+					cout << "stuff broke" << endl;
+				}
+				//Put in colliders[k]
 			}
 		}
 	}
 	
+
 	
 	
 }
@@ -292,7 +406,7 @@ void draw()
 	
 
 	cube->Draw(cube->GetPos(), cube->GetScale(), cube->GetRotAxis(), cube->GetRotAmnt(), &cameraMat, &view);
-	cube2->Draw(cube2->GetPos(), cube2->GetScale(), cube2->GetRotAxis(), cube->GetRotAmnt(), &cameraMat, &view);
+	//cube2->Draw(cube2->GetPos(), cube2->GetScale(), cube2->GetRotAxis(), cube->GetRotAmnt(), &cameraMat, &view);
 	
 	bWall->Draw(bWall->GetPos(), bWall->GetScale(), bWall->GetRotAxis(), bWall->GetRotAmnt(), &cameraMat, &view);
 	tWall->Draw(tWall->GetPos(), tWall->GetScale(), tWall->GetRotAxis(), tWall->GetRotAmnt(), &cameraMat, &view);

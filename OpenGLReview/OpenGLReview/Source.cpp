@@ -10,7 +10,8 @@
 #include<time.h>
 #include <glm\gtx\transform.hpp>
 #include "Camera.h"
-#include <SOIL.h>
+#include "GameState.h"
+#include <array>
 
 #pragma once
 using namespace std;
@@ -48,6 +49,12 @@ float currentTime;
 int triCount = 0;
 int debugLoop = 0;
 int collCount = 0;
+
+int oneScore = 0;
+int twoScore = 0;
+int oneRound = 0;
+int twoRound = 0; 
+
 GLFWwindow* windowPtr;
 mat4 view;
 
@@ -72,8 +79,17 @@ Shape* rpaddle2;
 Shape* rpaddle3;
 Shape* rpaddle4;
 
+Shape* onePoints [10];
+Shape* twoPoints[10];
+
+Shape* oneWins[3];
+Shape* twoWins[3];
+
+GameState state;
+
 void init()
 {
+	state = play;
 	srand(time(NULL));
 	
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -96,6 +112,20 @@ void init()
 	cube->GetOBB()->SetIsBall(true);
 	//cube2 = new Shape(vertices, vertices.size(), vertices.size() * 3, vertexIndices, uvIndices, normalIndices, uvs, normals, shader);
 	
+	for (int i = 0; i < 10;i++)
+	{
+		onePoints[i] = new Shape(vertices, vertices.size(), vertices.size() * 3, vertexIndices, uvIndices, normalIndices, uvs, normals, shader);
+
+		twoPoints[i] = new Shape(vertices, vertices.size(), vertices.size() * 3, vertexIndices, uvIndices, normalIndices, uvs, normals, shader);
+	}
+
+	for (int i = 0; i < 3; i++)
+	{
+		oneWins[i] = new Shape(vertices, vertices.size(), vertices.size() * 3, vertexIndices, uvIndices, normalIndices, uvs, normals, shader);
+
+		twoWins[i] = new Shape(vertices, vertices.size(), vertices.size() * 3, vertexIndices, uvIndices, normalIndices, uvs, normals, shader);
+	}
+
 	bWall = new Shape(vertices, vertices.size(), vertices.size() * 3, vertexIndices, uvIndices, normalIndices, uvs, normals, shader);
 	tWall = new Shape(vertices, vertices.size(), vertices.size() * 3, vertexIndices, uvIndices, normalIndices, uvs, normals, shader);
 	bWall->GetOBB()->SetIsWall(true);
@@ -180,6 +210,16 @@ void init()
 	tWall->SetScale(glm::vec3(0.25, 0.25, 10.5));
 	tWall->SetPos(glm::vec3(0, -3.67, 0));
 
+	for (int i = 0; i < 10; i++)
+	{
+		onePoints[i]->SetPos(glm::vec3(0, -4.5, 5.17 - (i*.5)));
+		twoPoints[i]->SetPos(glm::vec3(0, -4.5, -5.17 + (i*.5)));
+	}
+	for (int i = 0; i < 3; i++)
+	{
+		oneWins[i]->SetPos(glm::vec3(0, 4.5, 5.17 - (i*1.5)));
+		twoWins[i]->SetPos(glm::vec3(0, 4.5, -5.17 + (i*1.5)));
+	}
 
 
 	GLfloat verticesTriangle[3 * 5] =
@@ -192,209 +232,307 @@ void init()
 
 	glClearColor(0.0f, 0.0f, 0.5f, 1.0f);
 
-	cube->SetVel(vec3(0, 0, .01));
+	cube->SetVel(vec3(0, 0, .05));
+
+	glfwSetTime(0.0);
+	state = play;
 }
 
 void update()
 {
-	//curRotAmount += rotAmountChange;
-	//int state = glfwGetMouseButton(windowPtr, GLFW_MOUSE_BUTTON_LEFT);
-	int stateW = glfwGetKey(windowPtr, GLFW_KEY_W);
-	int stateA = glfwGetKey(windowPtr, GLFW_KEY_A);
-	int stateS = glfwGetKey(windowPtr, GLFW_KEY_S);
-	int stateD = glfwGetKey(windowPtr, GLFW_KEY_D);
-	int stateUp = glfwGetKey(windowPtr, GLFW_KEY_UP);
-	int stateDown = glfwGetKey(windowPtr, GLFW_KEY_DOWN);
-	int stateQ = glfwGetKey(windowPtr, GLFW_KEY_Q);
+		currentTime = float(glfwGetTime());
+		deltaTime = currentTime - lastTime;
+		deltaTime *= 75;
+		//curRotAmount += rotAmountChange;
+		//int state = glfwGetMouseButton(windowPtr, GLFW_MOUSE_BUTTON_LEFT);
+		int stateW = glfwGetKey(windowPtr, GLFW_KEY_W);
+		int stateA = glfwGetKey(windowPtr, GLFW_KEY_A);
+		int stateS = glfwGetKey(windowPtr, GLFW_KEY_S);
+		int stateD = glfwGetKey(windowPtr, GLFW_KEY_D);
+		int stateUp = glfwGetKey(windowPtr, GLFW_KEY_UP);
+		int stateDown = glfwGetKey(windowPtr, GLFW_KEY_DOWN);
+		int stateQ = glfwGetKey(windowPtr, GLFW_KEY_Q);
+		int stateEnter = glfwGetKey(windowPtr, GLFW_KEY_ENTER);
 
-	if (stateW == GLFW_PRESS)
-	{
-		for (int i = 0; i < lPaddle.size(); i++)
+		if (stateW == GLFW_PRESS && !lPaddle[3]->GetOBB()->CollCheck(tWall->GetOBB()))
 		{
-			lPaddle[i]->SetAccel(glm::vec3(0, -0.00125, 0));
-			//lPaddle[i]->SetVel(glm::vec3(0, .01, 0));
-		}
-
-	}
-	if (stateS == GLFW_PRESS)
-	{
-		for (int i = 0; i < lPaddle.size(); i++)
-		{
-			lPaddle[i]->SetAccel(glm::vec3(0, 0.00125, 0));
-		}
-	}
-
-	if (stateUp == GLFW_PRESS)
-	{
-		for (int i = 0; i < rPaddle.size(); i++)
-		{
-			rPaddle[i]->SetAccel(glm::vec3(0, -0.00125, 0));
-		}
-
-	}
-	if (stateDown == GLFW_PRESS)
-	{
-		for (int i = 0; i < rPaddle.size(); i++)
-		{
-			rPaddle[i]->SetAccel(glm::vec3(0, 0.00125, 0));
-		}
-	}
-
-
-	if (stateA == GLFW_PRESS)
-	{
-
-		//camera.pos -= 0.005f * camera.getRight();
-		cube->SetAccel(glm::vec3(0, 0, 0.00125));
-	}
-
-	if (stateS == GLFW_PRESS)
-	{
-		for (int i = 0; i < lPaddle.size(); i++)
-		{
-			lPaddle[i]->SetAccel(glm::vec3(0, 0.00125, 0));
-		}
-	}
-
-	if (stateD == GLFW_PRESS)
-	{
-		//camera.pos += 0.005f * camera.getRight();
-		cube->SetAccel(glm::vec3(0, 0, -0.00125));
-
-	}
-
-	if (stateQ == GLFW_PRESS)
-	{
-		glfwSetWindowShouldClose(windowPtr, 1);
-
-	}
-
-	/*
-	double cursorXPos;
-	double cursorYPos;
-	double convXPos;
-	double convYPos;
-	glfwGetCursorPos(windowPtr, &cursorXPos, &cursorYPos);
-	convXPos = 2.0f * (((float)cursorXPos / (float)windowWidth) - 0.5f);
-	convYPos = -2.0f * (((float)cursorYPos / (float)windowHeight) - 0.5f);
-	*/
-
-	//camera.yaw += 0.001f;
-	//camera.pitch += 0.001f;
-	camera.getForward();
-	camera.getRight();
-	camera.getUp();
-	view = lookAt(camera.pos, camera.getLookAt(), vec3(0.0f, 1.0f, 0.0f));
-	mat4 projection = perspective(100.0f, 1.0f, 0.01f, 1000.0f);
-	cameraMat = projection * view;
-
-
-	currentTime = float(glfwGetTime());
-	deltaTime = currentTime - lastTime;
-
-	//deltaTime /= 1000;
-	lastTime = currentTime;
-	
-	cube->Update();
-	//cube2->Update();
-
-	lpaddle1 ->Update();
-	lpaddle2->Update();
-	lpaddle3->Update();
-	lpaddle4->Update();
-
-	rpaddle1->Update();
-	rpaddle2->Update();
-	rpaddle3->Update();
-	rpaddle4->Update();
-
-	//rWall->Update();
-	//bWall->Update();
-
-	for (int i = 0; i < colliders.size(); i++)
-	{
-		for (int k = i + 1; k < colliders.size(); k++)
-		{
-			if (colliders[i]->CollCheck(colliders[k]))
+			for (int i = 0; i < lPaddle.size(); i++)
 			{
-				collCount++;
-				//cout << "Collision # " << collCount <<  endl;
-				//Call getCollding with, check the number 
-				int collidingType = colliders[i]->GetCollidingWith(colliders[k]);
+				lPaddle[i]->SetAccel(glm::vec3(0, -0.00125*deltaTime, 0));
+			}
 
-				//If it's colliding with a wall
-				if (collidingType == 0){
-					cout << "yo its colliding with a wall!!" << endl;
-					
-					//If the original object is a ball
-					if (colliders[i]->GetIsBall()){
-						//	reverse ball velocity
-						float zVel = colliders[i]->GetShape()->GetVel().z;
-						float yVel = -1 * colliders[i]->GetShape()->GetVel().y;
-						colliders[i]->GetShape()->SetVel(vec3(0, yVel, zVel));
-					}
-					//If the original object is the right paddle
-					else if (colliders[i]->GetIsRightPaddle()){
-
-						
-						for (int m = 0; m < rPaddle.size(); m++){
-
-							//Bounce off wall
-							float yVel = -.5 * rPaddle[m]->GetVel().y;
-							rPaddle[m]->SetVel(vec3(0, yVel, 0));
-						}
-					}
-					//If the original object is the left paddle 
-					else if (colliders[i]->GetIsLeftPaddle()){
-						for (int m = 0; m < lPaddle.size(); m++){
-
-							//Bounce off wall
-							float yVel = -.5 * lPaddle[m]->GetVel().y;
-							lPaddle[m]->SetVel(vec3(0, yVel, 0));
-						}
-					}
-				}
-				//If it's colliding with a ball
-				else if (collidingType == 1){
-					cout << "yo its colliding with a ball!!" << endl;
-					
-					//If the original object is a paddle
-					if (colliders[i]->GetIsRightPaddle() || colliders[i]->GetIsLeftPaddle()){
-						
-						//If it's the right paddle and the ball is not to the left (The ball is underneath)
-						if (colliders[i]->GetIsRightPaddle()){
-							//Stop the paddle
-						}
-						else if (colliders[i]->GetIsLeftPaddle()){
-
-						}
-						
-					}
-				}
-				//If it's colliding with a paddle
-				else if (collidingType == 2 || collidingType == 3){
-					cout << "yo its colliding with a paddle!!" << endl;
-
-					//If the original object is a ball
-					if (colliders[i]->GetIsBall()){
-						//	reverse ball velocity
-						float zVel = -1 * colliders[i]->GetShape()->GetVel().z;
-						float yVel = colliders[i]->GetShape()->GetVel().y;
-						colliders[i]->GetShape()->SetVel(vec3(0, yVel, zVel));
-					}
-
-				}
-				else{
-					cout << "stuff broke" << endl;
-				}
-				//Put in colliders[k]
+		}
+		if (stateS == GLFW_PRESS && !lPaddle[0]->GetOBB()->CollCheck(bWall->GetOBB()))
+		{
+			for (int i = 0; i < lPaddle.size(); i++)
+			{
+				lPaddle[i]->SetAccel(glm::vec3(0, 0.00125*deltaTime, 0));
 			}
 		}
-	}
-	
 
-	
-	
+		if (stateUp == GLFW_PRESS && !rPaddle[3]->GetOBB()->CollCheck(tWall->GetOBB()))
+		{
+			for (int i = 0; i < rPaddle.size(); i++)
+			{
+				rPaddle[i]->SetAccel(glm::vec3(0, -0.00125*deltaTime, 0));
+			}
+
+		}
+		if (stateDown == GLFW_PRESS && !rPaddle[0]->GetOBB()->CollCheck(bWall->GetOBB()))
+		{
+			for (int i = 0; i < rPaddle.size(); i++)
+			{
+				rPaddle[i]->SetAccel(glm::vec3(0, 0.00125*deltaTime, 0));
+			}
+		}
+
+
+		if (stateA == GLFW_PRESS)
+		{
+
+			//camera.pos -= 0.005f * camera.getRight();
+			cube->SetAccel(glm::vec3(0, 0, 0.00125*deltaTime));
+		}
+
+		if (stateD == GLFW_PRESS)
+		{
+			//camera.pos += 0.005f * camera.getRight();
+			cube->SetAccel(glm::vec3(0, 0, -0.00125*deltaTime));
+
+		}
+		if (stateQ == GLFW_PRESS)
+		{
+			glfwSetWindowShouldClose(windowPtr, 1);
+
+		}
+
+
+		/*
+		double cursorXPos;
+		double cursorYPos;
+		double convXPos;
+		double convYPos;
+		glfwGetCursorPos(windowPtr, &cursorXPos, &cursorYPos);
+		convXPos = 2.0f * (((float)cursorXPos / (float)windowWidth) - 0.5f);
+		convYPos = -2.0f * (((float)cursorYPos / (float)windowHeight) - 0.5f);
+		*/
+
+		//camera.yaw += 0.001f;
+		//camera.pitch += 0.001f;
+		camera.getForward();
+		camera.getRight();
+		camera.getUp();
+		view = lookAt(camera.pos, camera.getLookAt(), vec3(0.0f, 1.0f, 0.0f));
+		mat4 projection = perspective(100.0f, 1.0f, 0.01f, 1000.0f);
+		cameraMat = projection * view;
+
+		//deltaTime /= 1000;
+		lastTime = currentTime;
+		if (state == oneWin)
+		{
+
+			if (stateEnter == GLFW_PRESS)
+			{
+				state = play;
+			}
+		}
+		else if (state == twoWin)
+		{
+
+			if (stateEnter == GLFW_PRESS)
+			{
+				state = play;
+			}
+		}
+		else
+		{
+			cube->Update();
+			//cube2->Update();
+
+			lpaddle1->Update();
+			lpaddle2->Update();
+			lpaddle3->Update();
+			lpaddle4->Update();
+
+			rpaddle1->Update();
+			rpaddle2->Update();
+			rpaddle3->Update();
+			rpaddle4->Update();
+		}
+
+		//rWall->Update();
+		//bWall->Update();
+
+		for (int i = 0; i < colliders.size(); i++)
+		{
+			for (int k = i + 1; k < colliders.size(); k++)
+			{
+				if (colliders[i]->CollCheck(colliders[k]))
+				{
+					collCount++;
+					//cout << "Collision # " << collCount <<  endl;
+					//Call getCollding with, check the number 
+					int collidingType = colliders[i]->GetCollidingWith(colliders[k]);
+
+					//If it's colliding with a wall
+					if (collidingType == 0){
+						cout << "yo its colliding with a wall!!" << endl;
+
+						//If the original object is a ball
+						if (colliders[i]->GetIsBall()){
+							//	reverse ball velocity
+							float zVel = colliders[i]->GetShape()->GetVel().z;
+							float yVel = -1 * colliders[i]->GetShape()->GetVel().y;
+							colliders[i]->GetShape()->SetVel(vec3(0, yVel, zVel));
+						}
+						//If the original object is the right paddle
+						else if (colliders[i]->GetIsRightPaddle()){
+
+
+							for (int m = 0; m < rPaddle.size(); m++){
+
+								//Bounce off wall
+								float yVel = -.5 * rPaddle[m]->GetVel().y;
+								rPaddle[m]->SetVel(vec3(0, yVel, 0));
+							}
+						}
+						//If the original object is the left paddle 
+						else if (colliders[i]->GetIsLeftPaddle()){
+							for (int m = 0; m < lPaddle.size(); m++){
+
+								//Bounce off wall
+								float yVel = -.5 * lPaddle[m]->GetVel().y;
+								lPaddle[m]->SetVel(vec3(0, yVel, 0));
+							}
+						}
+					}
+					//If it's colliding with a ball
+					else if (collidingType == 1){
+						cout << "yo its colliding with a ball!!" << endl;
+
+						//If the original object is a paddle
+						if (colliders[i]->GetIsRightPaddle() || colliders[i]->GetIsLeftPaddle()){
+
+							//If it's the right paddle and the ball is not to the left (The ball is underneath)
+							if ((colliders[i]->GetIsRightPaddle() || colliders[i]->GetIsLeftPaddle()) && colliders[k]->GetCenter().z <= colliders[i]->GetCenter().z){
+								colliders[i]->GetShape()->SetVel(vec3(colliders[i]->GetShape()->GetVel().x, colliders[i]->GetShape()->GetVel().y, 0));
+							}
+							else if ((colliders[i]->GetIsRightPaddle() || colliders[i]->GetIsLeftPaddle()) && colliders[k]->GetCenter().z >= colliders[i]->GetCenter().z){
+								colliders[i]->GetShape()->SetVel(vec3(colliders[i]->GetShape()->GetVel().x, colliders[i]->GetShape()->GetVel().y, 0));
+							}
+
+
+						}
+					}
+					//If it's colliding with a paddle
+					else if (collidingType == 2 || collidingType == 3){
+						cout << "yo its colliding with a paddle!!" << endl;
+
+						//If the original object is a ball
+						if (colliders[i]->GetIsBall()){
+							//	reverse ball velocity
+							float zVel = -1 * colliders[i]->GetShape()->GetVel().z;
+							float yVel = colliders[k]->GetShape()->GetVel().y / 2;
+							colliders[i]->GetShape()->SetVel(vec3(0, yVel, zVel));
+						}
+
+					}
+					else{
+						cout << "stuff broke" << endl;
+					}
+					//Put in colliders[k]
+				}
+			}
+		}
+
+		if (cube->GetPos().z >= 5.3)
+		{
+			state = twoPoint;
+		}
+		else if (cube->GetPos().z <= -5.3)
+		{
+			state = onePoint;
+		}
+
+		//After a player scores, stuff resets to new positions with the ball drifting towards the player who didn't score
+		if (state == onePoint)
+		{
+			cube->SetPos(vec3(0, 0, 0));
+
+			lpaddle1->SetPos(glm::vec3(0, 0.5, 5.17));
+			lpaddle2->SetPos(glm::vec3(0, 0.25, 5.17));
+			lpaddle3->SetPos(glm::vec3(0, 0, 5.17));
+			lpaddle4->SetPos(glm::vec3(0, -0.25, 5.17));
+
+			rpaddle1->SetPos(glm::vec3(0, 0.5, -5.17));
+			rpaddle2->SetPos(glm::vec3(0, 0.25, -5.17));
+			rpaddle3->SetPos(glm::vec3(0, 0, -5.17));
+			rpaddle4->SetPos(glm::vec3(0, -0.25, -5.17));
+
+			cube->SetVel(vec3(0, 0, -.05));
+			oneScore++;
+			if ((oneScore >= 5 && twoScore <= oneScore - 2) || oneScore>=10)
+			{
+				state = oneWin;
+				oneRound++;
+				oneScore = 0;
+				twoScore = 0;
+			}
+			else
+			{
+				state = play;
+			}
+		}
+		else if (state == twoPoint)
+		{
+			cube->SetPos(vec3(0, 0, 0));
+
+			lpaddle1->SetPos(glm::vec3(0, 0.5, 5.17));
+			lpaddle2->SetPos(glm::vec3(0, 0.25, 5.17));
+			lpaddle3->SetPos(glm::vec3(0, 0, 5.17));
+			lpaddle4->SetPos(glm::vec3(0, -0.25, 5.17));
+
+			rpaddle1->SetPos(glm::vec3(0, 0.5, -5.17));
+			rpaddle2->SetPos(glm::vec3(0, 0.25, -5.17));
+			rpaddle3->SetPos(glm::vec3(0, 0, -5.17));
+			rpaddle4->SetPos(glm::vec3(0, -0.25, -5.17));
+
+			cube->SetVel(vec3(0, 0, .05));
+
+			twoScore++;
+			if ((twoScore >= 5 && oneScore <= twoScore - 2) || twoScore >= 10)
+			{
+				state = twoWin;
+				twoRound++;
+				twoScore = 0;
+				oneScore = 0;
+			}
+			else
+			{
+				state = play;
+			}
+		}
+
+		if (oneRound >= 3 || twoRound >= 3)
+		{
+			state = oneWin;
+			cube->SetPos(vec3(0, 0, 0));
+
+			lpaddle1->SetPos(glm::vec3(0, 0.5, 5.17));
+			lpaddle2->SetPos(glm::vec3(0, 0.25, 5.17));
+			lpaddle3->SetPos(glm::vec3(0, 0, 5.17));
+			lpaddle4->SetPos(glm::vec3(0, -0.25, 5.17));
+
+			rpaddle1->SetPos(glm::vec3(0, 0.5, -5.17));
+			rpaddle2->SetPos(glm::vec3(0, 0.25, -5.17));
+			rpaddle3->SetPos(glm::vec3(0, 0, -5.17));
+			rpaddle4->SetPos(glm::vec3(0, -0.25, -5.17));
+
+			oneScore = 0;
+			twoScore = 0;
+			oneRound = 0;
+			twoRound = 0;
+		}
 }
 
 void draw()
@@ -420,6 +558,23 @@ void draw()
 	rpaddle2->Draw(rpaddle2->GetPos(), rpaddle2->GetScale(), rpaddle2->GetRotAxis(), rpaddle2->GetRotAmnt(), &cameraMat, &view);
 	rpaddle3->Draw(rpaddle3->GetPos(), rpaddle3->GetScale(), rpaddle3->GetRotAxis(), rpaddle3->GetRotAmnt(), &cameraMat, &view);
 	rpaddle4->Draw(rpaddle4->GetPos(), rpaddle4->GetScale(), rpaddle4->GetRotAxis(), rpaddle4->GetRotAmnt(), &cameraMat, &view);
+
+	for (int i = 0; i < oneScore; i++)
+	{
+		onePoints[i]->Draw(onePoints[i]->GetPos(), onePoints[i]->GetScale(), onePoints[i]->GetRotAxis(), onePoints[i]->GetRotAmnt(), &cameraMat, &view);
+	}
+	for (int i = 0; i < twoScore; i++)
+	{
+		twoPoints[i]->Draw(twoPoints[i]->GetPos(), twoPoints[i]->GetScale(), twoPoints[i]->GetRotAxis(), twoPoints[i]->GetRotAmnt(), &cameraMat, &view);
+	}
+	for (int i = 0; i < oneRound; i++)
+	{
+		oneWins[i]->Draw(oneWins[i]->GetPos(), oneWins[i]->GetScale(), oneWins[i]->GetRotAxis(), oneWins[i]->GetRotAmnt(), &cameraMat, &view);
+	}
+	for (int i = 0; i < twoRound; i++)
+	{
+		twoWins[i]->Draw(twoWins[i]->GetPos(), twoWins[i]->GetScale(), twoWins[i]->GetRotAxis(), twoWins[i]->GetRotAmnt(), &cameraMat, &view);
+	}
 
 	glFlush();
 
@@ -472,7 +627,7 @@ int main()
 	init();
 
 	glfwSetInputMode(windowPtr, GLFW_STICKY_MOUSE_BUTTONS, GL_TRUE);
-	glfwSetInputMode(windowPtr, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	//glfwSetInputMode(windowPtr, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	glfwSetCursorPosCallback(windowPtr, mouseCallback);
 	glfwSetMouseButtonCallback(windowPtr, MouseButtonCallback);
